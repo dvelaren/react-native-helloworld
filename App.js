@@ -9,95 +9,126 @@ import 'react-native-gesture-handler';
 import React, { Component } from 'react';
 import {
   View,
-  StyleSheet,
   SafeAreaView,
-  Button,
-  Text
+  StyleSheet,
+  FlatList
 } from 'react-native';
-import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
-import { faCoffee } from '@fortawesome/free-solid-svg-icons'
+import Icon from 'react-native-vector-icons/Ionicons'
 import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { FloatingAction } from 'react-native-floating-action';
+// import ActionButton from 'react-native-action-button';
+
 
 import TestComponent from './src/TestComponent';
+import BleDevice from './src/BleDevice';
 
-const Stack = createStackNavigator();
+/* Simulation Data */
+import devices from './sample/devices.json';
 
-function Home({ navigation }) {
+const actions = [{
+  text: 'Scan',
+  icon: <Icon name={'ios-bluetooth'} size={24} color={'white'} />,
+  name: 'bt_scan',
+  position: 1
+}];
+
+function HomeScreen() {
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
       <TestComponent id={1} />
       <TestComponent id={2} />
-      <Button
-        title="Go to Settings"
-        onPress={() => navigation.navigate('Settings')}
+    </View>
+  );
+}
+
+function BleScreen() {
+  console.log(devices);
+  return (
+    <SafeAreaView style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <FlatList
+        data={devices}
+        renderItem={({ item }) => <BleDevice device={item} />}
+        keyExtractor={item => item.id}
+      />
+      <FloatingAction
+        actions={actions}
+        onPressItem={name => {
+          alert("Selected button: " + name);
+        }}
+        color={"tomato"}
       />
     </SafeAreaView>
   );
 }
 
-function Settings() {
+function SettingsScreen() {
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
       <TestComponent id={4} />
     </SafeAreaView>
   );
 }
 
+const Tab = createBottomTabNavigator();
+
 export default class App extends Component {
+
+  state = {
+    devices: devices
+  }
+
+  addDevice = (id, name, rssi) => {
+    const newDevice = {
+      name: name || 'Undefined',
+      id: id,
+      rssi: rssi
+    }
+    this.setState({
+      devices: [...this.state.devices, newDevice]
+    })
+  }
+
   render() {
     return (
       <NavigationContainer>
-        <Stack.Navigator
-          initialRouteName="Home"
-          screenOptions={{
-            headerTitle: () => (
-              <View style={styles.myStyle}>
-                <FontAwesomeIcon icon={ faCoffee } color={'red'} size={ 24 } />
-                <Text style={styles.text}>Home</Text>
-              </View>
-            ),
-            headerRight: () => (
-              <Button
-                onPress={() => alert('This is a button!')}  
-                title="Info"
-                color='blue'
-              />
-            )
-          }}>
-          <Stack.Screen name="Home" component={Home} options={{title: 'My Home'}} />
-          <Stack.Screen name="Settings" component={Settings} />
-        </Stack.Navigator>
+        <Tab.Navigator
+          screenOptions={({ route }) => ({
+            tabBarIcon: ({ focused, color, size }) => {
+              let iconName;
+
+              if (route.name === 'Home') {
+                iconName = focused
+                  ? 'ios-information-circle'
+                  : 'ios-information-circle-outline';
+              } else if (route.name === 'Bluetooth') {
+                iconName = focused ? 'ios-bluetooth' : 'ios-bluetooth';
+              } else if (route.name === 'Settings') {
+                iconName = focused ? 'ios-list-box' : 'ios-list';
+              }
+
+              return <Icon name={iconName} size={size} color={color} />
+            },
+          })}
+          tabBarOptions={{
+            activeTintColor: 'tomato',
+            inactiveTintColor: 'gray'
+          }}
+        >
+          <Tab.Screen name="Home" component={HomeScreen} />
+          <Tab.Screen name="Bluetooth">
+            {() => <BleScreen devices={this.state.devices} />}
+          </Tab.Screen>
+          <Tab.Screen name="Settings" component={SettingsScreen} />
+        </Tab.Navigator>
       </NavigationContainer>
     );
-  }
-}
-
-const navOptions = {
-  headerStyle: {
-    backGroundColor: '#f4511e'
-  },
-  headerTintColor: '#fff',
-  headerTitleStyle: {
-    fontWeight: 'bold'
   }
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginHorizontal: 16,
-    justifyContent: 'center'
+    marginTop: 10,
   },
-  myStyle: {
-    paddingVertical: 15,
-    paddingHorizontal: 10,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center'
-  },
-  text: {
-    fontSize: 24,
-    color: "blue"
-  }
 });

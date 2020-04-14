@@ -1,0 +1,16 @@
+[
+    {
+        "name": "[TV] Samsung 5 Series (32)",
+        "id": "F8:77:B8:C0:17:D8",
+        "rssi": -90
+    },
+    {
+        "id": "D0:03:DF:A7:1C:23",
+        "rssi": -96
+    },
+    {
+        "id": "A0:00:AF:B2:2E:27",
+        "name": "David S10",
+        "rssi": -94
+    }
+]
