@@ -7,67 +7,17 @@
  */
 import 'react-native-gesture-handler';
 import React, { Component } from 'react';
-import {
-  View,
-  SafeAreaView,
-  StyleSheet,
-  FlatList
-} from 'react-native';
+
 import Icon from 'react-native-vector-icons/Ionicons'
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { FloatingAction } from 'react-native-floating-action';
 
-/* Components */
-import TestComponent from './src/TestComponent';
-import BleDevice from './src/BleDevice';
+import HomeScreen from './pages/HomeScreen';
+import BleScreen from './pages/BleScreen';
+import SettingsScreen from './pages/SettingsScreen';
 
 /* Simulation Data */
 import devices from './sample/devices.json';
-
-const actions = [{
-  text: 'Scan',
-  icon: <Icon name={'ios-bluetooth'} size={24} color={'white'} />,
-  name: 'bt_scan',
-  position: 1
-}];
-
-function HomeScreen() {
-  return (
-    <View style={styles.container}>
-      <TestComponent id={1} />
-      <TestComponent id={2} />
-    </View>
-  );
-}
-
-function BleScreen() {
-  console.log(devices);
-  return (
-    <SafeAreaView style={styles.container}>
-      <FlatList
-        data={devices}
-        renderItem={({ item }) => <BleDevice device={item} />}
-        keyExtractor={item => item.id}
-      />
-      <FloatingAction
-        actions={actions}
-        onPressItem={name => {
-          alert("Selected button: " + name);
-        }}
-        color={"tomato"}
-      />
-    </SafeAreaView>
-  );
-}
-
-function SettingsScreen() {
-  return (
-    <SafeAreaView style={styles.container}>
-      <TestComponent id={4} />
-    </SafeAreaView>
-  );
-}
 
 const Tab = createBottomTabNavigator();
 
@@ -125,10 +75,3 @@ export default class App extends Component {
   }
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center'
-  },
-});
