@@ -85,7 +85,7 @@ export default class BleScreen extends Component {
     uuid: ''
   }
 
-  addDevice(_uuid, _name, _rssi) {
+  addFoundDevice(_uuid, _name, _rssi) {
     const newDevice = {
       id: _uuid,
       name: _name || 'undefined',
@@ -95,6 +95,7 @@ export default class BleScreen extends Component {
     this.setState({
       devicesFound: [...this.state.devicesFound, newDevice]
     });
+    this.props.addDevice(_uuid, _name, _rssi);
   }
 
   isValidUUID(uuid) {
@@ -123,7 +124,7 @@ export default class BleScreen extends Component {
       if (event.serviceUuids) {
         for(let i=0; i< event.serviceUuids.length; i++){
           if (this.isValidUUID(event.serviceUuids[i]))
-            this.addDevice(event.serviceUuids[i], event.deviceName, event.rssi)   
+            this.addFoundDevice(event.serviceUuids[i], event.deviceName, event.rssi)   
         }
       }
     });

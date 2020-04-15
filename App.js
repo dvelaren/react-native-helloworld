@@ -66,7 +66,7 @@ export default class App extends Component {
         >
           <Tab.Screen name="Home" component={HomeScreen} />
           <Tab.Screen name="Bluetooth">
-            {() => <BleScreen devices={this.state.devices} />}
+            {() => <BleScreen devices={this.state.devices} addDevice={this.addDevice}/>}
           </Tab.Screen>
           <Tab.Screen name="Settings" component={SettingsScreen} />
         </Tab.Navigator>
