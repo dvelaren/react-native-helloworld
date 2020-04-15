@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Platform } from 'react-native';
+import { Alert, Platform } from 'react-native';
 import { NativeEventEmitter, NativeModules } from 'react-native';
 import { 
   SafeAreaView, 
@@ -10,7 +10,8 @@ import {
 import { FloatingAction } from 'react-native-floating-action';
 import Icon from 'react-native-vector-icons/Ionicons'
 import BLEAdvertiser from 'react-native-ble-advertiser';
-
+import UUIDGenerator from 'react-native-uuid-generator';
+import { PermissionsAndroid } from 'react-native';
 
 /* Import Components */
 import BleDevice from '../src/BleDevice';
@@ -20,13 +21,68 @@ const actions = [{
   icon: <Icon name={'ios-bluetooth'} size={24} color={'white'} />,
   name: 'bt_scan',
   position: 1
+},
+{
+  text: 'Stop Scan',
+  icon: <Icon name={'ios-close'} size={24} color={'white'} />,
+  name: 'bt_stop',
+  position: 2
 }];
 
+export async function requestLocationPermission() {
+  try {
+    if (Platform.OS === 'android') {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+        {
+          'title': 'BLE Avertiser Example App',
+          'message': 'Example App access to your location '
+        }
+      )
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        console.log("You can use the location")
+      } else {
+        console.log("location permission denied")
+      }
+    }
+
+    const blueoothActive = await BLEAdvertiser.getAdapterState().then(result => {
+      console.log('[Bluetooth]', "isBTActive", result)
+      return result === "STATE_ON";
+    }).catch(error => { 
+      console.log('[Bluetooth]', "BT Not Enabled")
+      return false;
+    });
+
+    if (!blueoothActive) {
+      await Alert.alert(
+        'Private Kit requires bluetooth to be enabled',
+        'Would you like to enable Bluetooth?',
+        [
+          {
+            text: 'Yes',
+            onPress: () => BLEAdvertiser.enableAdapter(),
+          },
+          {
+            text: 'No',
+            onPress: () => console.log('No Pressed'),
+            style: 'cancel',
+          },
+        ],
+      )
+    }
+
+    console.log("BT Active?", blueoothActive);
+  } catch (err) {
+    console.warn(err)
+  }
+}
 
 export default class BleScreen extends Component {
   state = {
     devicesFound: [],
-    isLogging: false
+    isLogging: false,
+    uuid: ''
   }
 
   addDevice(_uuid, _name, _rssi) {
@@ -47,8 +103,17 @@ export default class BleScreen extends Component {
   }
 
   componentDidMount(){
+    requestLocationPermission();
+
     console.log("BLE Advertiser", BLEAdvertiser);
-    BLEAdvertiser.setCompanyId(0x7777); 
+    BLEAdvertiser.setCompanyId(0x7777);
+
+    UUIDGenerator.getRandomUUID((newUid) => {
+      this.setState({
+        uuid: newUid
+      });
+    });
+
     const eventEmitter = Platform.select({
       ios: new NativeEventEmitter(NativeModules.BLEAdvertiser),
       android: new NativeEventEmitter(NativeModules.BLEAdvertiser),
@@ -66,7 +131,7 @@ export default class BleScreen extends Component {
 
   start() {
     console.log("Starting Advertising");
-    BLEAdvertiser.broadcast("44bb3538-e3be-4824-849e-802143c63283", [12,23,56])
+    BLEAdvertiser.broadcast(this.state.uuid, [12,23,56])
     .then((sucess) => {
       console.log("Adv Successful", sucess);
     }).catch(error => {
@@ -122,6 +187,8 @@ export default class BleScreen extends Component {
             console.log("Pressed button: " + name);
             if (name==='bt_scan'){
               this.start();
+            } else if (name==='bt_stop'){
+              this.stop();
             }
           }}
           color={"tomato"}
