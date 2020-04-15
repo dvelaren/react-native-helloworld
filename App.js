@@ -17,9 +17,8 @@ import Icon from 'react-native-vector-icons/Ionicons'
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { FloatingAction } from 'react-native-floating-action';
-// import ActionButton from 'react-native-action-button';
 
-
+/* Components */
 import TestComponent from './src/TestComponent';
 import BleDevice from './src/BleDevice';
 
@@ -35,7 +34,7 @@ const actions = [{
 
 function HomeScreen() {
   return (
-    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+    <View style={styles.container}>
       <TestComponent id={1} />
       <TestComponent id={2} />
     </View>
@@ -45,7 +44,7 @@ function HomeScreen() {
 function BleScreen() {
   console.log(devices);
   return (
-    <SafeAreaView style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+    <SafeAreaView style={styles.container}>
       <FlatList
         data={devices}
         renderItem={({ item }) => <BleDevice device={item} />}
@@ -64,7 +63,7 @@ function BleScreen() {
 
 function SettingsScreen() {
   return (
-    <SafeAreaView style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+    <SafeAreaView style={styles.container}>
       <TestComponent id={4} />
     </SafeAreaView>
   );
@@ -129,6 +128,7 @@ export default class App extends Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: 10,
+    justifyContent: 'center',
+    alignItems: 'center'
   },
 });
